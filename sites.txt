@@ -1,3 +1,4 @@
+https://www.golang-book.com/books/intro/12
 https://www.billdesk.com 
 http://google.com
 http://facebook.com
@@ -6,7 +7,5 @@ http://golang.org
 http://amazon.com
 foobar
 http://notasite
-http://www.umb.com
 http://www.mytedata.com
-http://www.jocogov.org
 http://www.kongregate.com/
