@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -12,9 +13,17 @@ import (
 	"sync"
 )
 
+// check_sites will attempt to connect to each URL provided on stdin
+//
+// each check will be done via a goroutine to allow multi-tasking since the connection may take some time to process or timeout
 func main() {
+	// waitGroup for the goroutines
 	var waitGroup sync.WaitGroup
-	var m sync.Mutex
+
+	// logger to use for output
+	// a Logger can be used simultaneously from multiple goroutines
+	// if a fmt.Print* was used, a mutex would be needed
+	logger := log.New(os.Stdout, "", log.LstdFlags)
 
 	// loop thru stdin by line
 	scanner := bufio.NewScanner(os.Stdin)
@@ -30,14 +39,13 @@ func main() {
 			waitGroup.Add(1)
 			go func() {
 				defer waitGroup.Done()
-				m.Lock()
-				defer m.Unlock()
-				fmt.Println(checkSite(line))
+				logger.Println(checkSite(line))
 			}()
 		} else {
 			fmt.Fprintln(os.Stderr, "invalid URL: ", line)
 		}
 	}
+
 	// display any errors from reading stdin
 	if err := scanner.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, "reading standard input: ", err)
@@ -47,7 +55,7 @@ func main() {
 	waitGroup.Wait()
 }
 
-// check if urlStr is a valid URL
+// isValidURL determines if urlStr is a valid URL
 func isValidUrl(urlStr string) bool {
 	_, err := url.ParseRequestURI(urlStr)
 	if err != nil {
@@ -56,7 +64,7 @@ func isValidUrl(urlStr string) bool {
 	return true
 }
 
-// check if site is up
+// checkSite determines if a site is up by doing a simple Get, returning the site and status string.
 func checkSite(site string) string {
 	var status string
 
