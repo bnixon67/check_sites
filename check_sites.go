@@ -42,7 +42,7 @@ func main() {
 				logger.Println(checkSite(line))
 			}()
 		} else {
-			fmt.Fprintln(os.Stderr, "invalid URL: ", line)
+			logger.Println("invalid URL: ", line)
 		}
 	}
 
@@ -58,13 +58,11 @@ func main() {
 // isValidURL determines if urlStr is a valid URL
 func isValidUrl(urlStr string) bool {
 	_, err := url.ParseRequestURI(urlStr)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
-// checkSite determines if a site is up by doing a simple Get, returning the site and status string.
+// checkSite determines if a site is up by doing a simple Get,
+// returning the site and status string.
 func checkSite(site string) string {
 	var status string
 
@@ -76,7 +74,10 @@ func checkSite(site string) string {
 
 		status = "UP " + resp.Status
 
-		io.Copy(ioutil.Discard, resp.Body)
+		// read and discard the response body
+		if _, err := io.Copy(ioutil.Discard, resp.Body); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	return fmt.Sprintf("%s %s", site, status)
