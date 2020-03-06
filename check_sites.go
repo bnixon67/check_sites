@@ -66,7 +66,7 @@ func isValidUrl(urlStr string) bool {
 func checkSite(site string) string {
 	var status string
 
-	resp, err := http.Get(site)
+	resp, err := http.Head(site)
 	if err != nil {
 		status = "DOWN " + err.Error()
 	} else {
