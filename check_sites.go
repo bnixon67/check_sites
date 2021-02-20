@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -75,7 +74,7 @@ func checkSite(site string) string {
 		status = "UP " + resp.Status
 
 		// read and discard the response body
-		if _, err := io.Copy(ioutil.Discard, resp.Body); err != nil {
+		if _, err := io.Copy(io.Discard, resp.Body); err != nil {
 			log.Fatal(err)
 		}
 	}
